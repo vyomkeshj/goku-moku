@@ -1,81 +1,73 @@
-import numpy as np
-
-
-import gym
+from env.checker import *
 from gym import spaces
-from math import *
-import torch
 
-class fast_environment(gym.Env):
+from env.gomoku import GomokuGame
+from env.utils import get_initial_state
+from stable_baselines3 import A2C
+
+
+class GomokuEnv(gym.Env):
 
     def __init__(self):
-        self.action_count = 0;
-        self._max_episode_steps = 100
+        self.action_count = 0
+        self._max_episode_steps = 255
 
-        self.action_space = spaces.Box(low=np.array([-4.0000, -4.0000, -4.0000, -4.0000, -4.0000, -4.0000]),
-                                       high=np.array([4.0000, 4.0000, 4.0000, 4.0000, 4.0000, 4.0000]),
+        self.initial_state = get_initial_state()
+
+        self.action_space = spaces.Box(low=np.array([-1, -1]),
+                                       high=np.array([1, 1]),
                                        dtype=np.float32)
 
         self.observation_space = spaces.Box(
-            low=np.array([-pi, -pi, -pi, -pi, -pi, -pi, -1, -1, -1, -pi, -1, -1, -1, -1, -1, -1,
-                          -pi, -pi, -pi, -pi, -pi, -pi, -1, -1, -1, -pi, -1, -1, -1, -1, -1, -1,
-                          -pi, -pi, -pi, -pi, -pi, -pi, -1, -1, -1, -pi, -1, -1, -1, -1, -1, -1,
-                          -pi, -pi, -pi, -pi, -pi, -pi, -1, -1, -1, -pi, -1, -1, -1, -1, -1, -1, ],
-                         dtype=np.float32),
+            low=np.full((15, 15), -1, dtype=int),
+            high=np.full((15, 15), 1, dtype=int),
+            dtype=int
+        )
 
-            high=np.array([pi, pi, pi, pi, pi, pi, 1, 1, 1, pi, 1, 1, 1, 1, 1, 1,
-                           pi, pi, pi, pi, pi, pi, 1, 1, 1, pi, 1, 1, 1, 1, 1, 1,
-                           pi, pi, pi, pi, pi, pi, 1, 1, 1, pi, 1, 1, 1, 1, 1, 1,
-                           pi, pi, pi, pi, pi, pi, 1, 1, 1, pi, 1, 1, 1, 1, 1, 1, ]),
-            dtype=np.float32)
+        self.game_mdp = GomokuGame(self.initial_state)
 
-        self.num_active_joints = self.action_space.shape[0]  # number of joints to be updated (from base to wrist)
-        self.robot_mdp = robot_mdp(self.num_active_joints)
+        self.observation_buffer_size = 4000  # history size
 
-        self.observation_not_angles_size = 10  # observation that is not joint angles (vector distance, etc)
-        self.observation_buffer_size = 4  # history size
-        self.single_observation_size = (self.robot_mdp.dof + self.observation_not_angles_size)
+    def step(self, action_step):
+        """action is dict {player: PLAYER1/2, action: [x,y]}"""
+        # print(f"old action: {action}")
+        action_step = [int(x * 7.0000 + 7.0000) for x in action_step]
+        # print(f"new action: {action}")
 
-        self.observation_size = (self.robot_mdp.dof + self.observation_not_angles_size) * self.observation_buffer_size  # this is uses elsewhere
-
-        self.observation_buffer = torch.zeros(self.observation_size)
-
-    def get_net_observation(self, current_observation, flush):
-        local_buffer = torch.cat(
-            (self.observation_buffer[self.single_observation_size: self.observation_size], current_observation))
-        self.observation_buffer = local_buffer
-        if flush:
-            self.observation_buffer = torch.zeros(self.observation_size)
-
-        return local_buffer
-
-    def step(self, action):
-        # depending on the action size, append zeros to it for rest of the joint to signify static joints using np.pad
-        num_zeros_to_append = self.robot_mdp.dof - self.num_active_joints
-        action = np.pad(action, (0, num_zeros_to_append), 'constant')
-
+        self.action_count += 1
         # print("action done = ",action)
-        observation = self.robot_mdp.update_angle(action)
-        # return <angles and vec difference>, <reward>, <done_status>. The first n_dof elements are angles, next observation_not_angles_size are vec difference
-        observed_angles = observation[0:self.num_active_joints]
-        observed_difference = observation[self.robot_mdp.dof: (self.robot_mdp.dof + self.observation_not_angles_size)]
-        net_obs = torch.cat((observed_angles, observed_difference))
-        # print("net observation = ",net_obs)
-        reward_received = observation[self.single_observation_size]
-        done_status = observation[self.single_observation_size + 1]
-        # print("action = ", action, "observation = ", net_obs, "done =", done_status)
-        # print("stepping ", action)
-        return self.get_net_observation(net_obs, False), reward_received, done_status, {}
+        player = self.game_mdp.get_current_turn()
+        observation, reward_received, done_status = self.game_mdp.make_move(action_step, player)
+
+        if self.action_count == self._max_episode_steps:
+            done_status = True
+        return observation, reward_received, done_status, {}
 
     def reset(self):
-        observation = self.robot_mdp.reset_robot()
+        self.initial_state = get_initial_state()
+        self.game_mdp = GomokuGame(self.initial_state)
+        # print(f"reset board after {self.action_count} steps")
 
-        observed_angles = observation[0:self.num_active_joints]
-
-        observed_difference = observation[self.robot_mdp.dof: (self.robot_mdp.dof + self.observation_not_angles_size)]
-        net_obs = torch.cat((observed_angles, observed_difference))
-
-        return self.get_net_observation(net_obs, True)  # on reset, the observation is only the state of the environment
+        self.action_count = 0
+        return self.game_mdp.get_board_state()
 
     def render(self, mode='human'):
-        pass
+        self.game_mdp.print_board()
+
+
+# Test environment
+if __name__ == '__main__':
+    env = GomokuEnv()
+    reset = env.reset()
+    check_env(env)
+
+    model = A2C("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=1000)
+
+    obs = env.reset()
+    for i in range(10):
+        action, _state = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            obs = env.reset()

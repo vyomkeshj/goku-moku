@@ -5,6 +5,11 @@ EMPTY = "[ ]"
 PLAYER1 = "[O]"
 PLAYER2 = "[X]"
 
+EMPTY = 0
+PLAYER1 = 1
+PLAYER2 = -1
+
+
 # returns the initial state of the game, with all the board empty
 def get_initial_state():
     state = []
@@ -149,24 +154,20 @@ def exists_winner(state, moves):
     return EMPTY
 
 
-def print_header():
-    os.system('tput reset')
-    print(" === === === === === ===  PYMOKU  === === === === === === ===")
-
-
 # prints a state of the board
 def print_state(state):
-    s = " "
-    for j in range(15):
-        s += "  " + str(j).zfill(2)
-    print(s)
-    i = 0;
-    for row in state:
-        string = ""
-        for column in row:
-            string += column + " "
-        print(str(i).zfill(2) + " " + string)
-        i += 1
+    # s = " "
+    # for j in range(15):
+    #     s += "  " + str(j).zfill(2)
+    # print(s)
+    # i = 0;
+    # for row in state:
+    #     string = ""
+    #     for column in row:
+    #         string += column + " "
+    #     print(str(i).zfill(2) + " " + string)
+    #     i += 1
+    print(np.array(state))
 
 
 def input_position(turn, state):
