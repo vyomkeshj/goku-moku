@@ -33,7 +33,7 @@ class GomokuGame:
             return np.array(self.state).flatten(), -255, True
         elif not is_position_available(self.state, move):
             self.bad_tries += 1
-            return np.array(self.state).flatten(), -10, True
+            return np.array(self.state).flatten(), -10/255, False
         else:
             make_move(self.state, move, player)
             self.moves.append(move)
@@ -43,7 +43,7 @@ class GomokuGame:
             state_array = state_array.flatten()
             if self.winner is EMPTY:
                 self.turn = PLAYER2 if self.turn == PLAYER1 else PLAYER1
-                return state_array, -1.0000, False
+                return state_array, -1.0000/255.0000, False
             else:
                 print(f"The winner is: {self.turn}")
                 self.print_board()

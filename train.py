@@ -1,5 +1,7 @@
 import numpy as np
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, DDPG
+from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
+from stable_baselines3.dqn import MlpPolicy
 
 from env.checker import check_env
 from env.gomoku_env import GomokuEnv
@@ -11,8 +13,12 @@ from wandb.integration.sb3 import WandbCallback
 if __name__ == '__main__':
     # wandb.init()
     env = GomokuEnv()
-    model = A2C("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=100000)
+    param_noise = None
+    action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(2), sigma=float(1.0) * np.ones(2))
+
+    model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
+    model.learn(total_timesteps=400000)
+    model.save("ddpg_mountain")
 
     obs = env.reset()
     _state = obs
