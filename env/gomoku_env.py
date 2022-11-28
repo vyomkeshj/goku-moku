@@ -18,8 +18,8 @@ class GomokuEnv(gym.Env):
                                        dtype=np.float32)
 
         self.observation_space = spaces.Box(
-            low=np.full((1, 15, 15), 0, dtype=np.uint8),
-            high=np.full((1, 15, 15), 255, dtype=np.uint8),
+            low=np.full((225,), 0, dtype=np.uint8),
+            high=np.full((225,), 255, dtype=np.uint8),
             dtype=int
         )
 
@@ -42,10 +42,10 @@ class GomokuEnv(gym.Env):
     def reset(self):
         self.initial_state = get_initial_state()
         self.game_mdp = GomokuGame(self.initial_state)
-        # print(f"reset board after {self.action_count} steps")
+        print(f"reset board after {self.action_count} steps")
 
         self.action_count = 0
-        observation = self.game_mdp.get_board_state()[np.newaxis, ...]
+        observation = self.game_mdp.get_board_state().flatten()
         return observation
 
     def render(self, mode='human'):
