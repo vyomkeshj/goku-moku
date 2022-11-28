@@ -3,7 +3,6 @@ from gym import spaces
 
 from env.gomoku import GomokuGame
 from env.utils import get_initial_state
-from stable_baselines3 import A2C
 
 
 class GomokuEnv(gym.Env):
@@ -19,20 +18,17 @@ class GomokuEnv(gym.Env):
                                        dtype=np.float32)
 
         self.observation_space = spaces.Box(
-            low=np.full((15, 15), -1, dtype=int),
-            high=np.full((15, 15), 1, dtype=int),
+            low=np.full((1, 15, 15), 0, dtype=np.uint8),
+            high=np.full((1, 15, 15), 255, dtype=np.uint8),
             dtype=int
         )
 
         self.game_mdp = GomokuGame(self.initial_state)
 
-        self.observation_buffer_size = 4000  # history size
-
     def step(self, action_step):
         """action is dict {player: PLAYER1/2, action: [x,y]}"""
-        # print(f"old action: {action}")
         action_step = [int(x * 7.0000 + 7.0000) for x in action_step]
-        # print(f"new action: {action}")
+        # print(f" action: {action}")
 
         self.action_count += 1
         # print("action done = ",action)
@@ -49,10 +45,11 @@ class GomokuEnv(gym.Env):
         # print(f"reset board after {self.action_count} steps")
 
         self.action_count = 0
-        return self.game_mdp.get_board_state()
+        return self.game_mdp.get_board_state()[np.newaxis, ...]
 
     def render(self, mode='human'):
-        self.game_mdp.print_board()
+        pass
+        # self.game_mdp.print_board()
 
 
 # Test environment
@@ -60,14 +57,3 @@ if __name__ == '__main__':
     env = GomokuEnv()
     reset = env.reset()
     check_env(env)
-
-    model = A2C("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=1000)
-
-    obs = env.reset()
-    for i in range(10):
-        action, _state = model.predict(obs, deterministic=True)
-        obs, reward, done, info = env.step(action)
-        env.render()
-        if done:
-            obs = env.reset()

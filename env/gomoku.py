@@ -28,21 +28,24 @@ class GomokuGame:
     def make_move(self, move, player):
         if move[0] > 15 or move[1] > 15:
             # print("Please insert values between 0 and 14")
-            return np.array(self.state), -10, True
+            return np.array(self.state), -255, True
         elif not is_position_available(self.state, move):
             # print("Position is busy")
-            return np.array(self.state), -10, True
+            return np.array(self.state), -255, True
         else:
             make_move(self.state, move, player)
             self.moves.append(move)
             self.round_number += 1
             self.winner = exists_winner(self.state, self.moves)
-
+            state_array = np.array(self.state)
+            state_array = state_array[np.newaxis, ...]
             if self.winner is EMPTY:
                 self.turn = PLAYER2 if self.turn == PLAYER1 else PLAYER1
-                return np.array(self.state), -1, False
+                return state_array, -1.0000, False
             else:
-                return np.array(self.state), 255, True
+                print(f"The winner is: {self.turn}")
+                self.print_board()
+                return state_array, 255, True
 
 
 # Test game

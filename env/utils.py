@@ -1,13 +1,12 @@
 import numpy as np
-import os
 
 EMPTY = "[ ]"
 PLAYER1 = "[O]"
 PLAYER2 = "[X]"
 
 EMPTY = 0
-PLAYER1 = 1
-PLAYER2 = -1
+PLAYER1 = 128
+PLAYER2 = 255
 
 
 # returns the initial state of the game, with all the board empty
