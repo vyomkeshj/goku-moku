@@ -8,6 +8,7 @@ class GomokuGame:
         self.state = init_state
         self.winner = EMPTY
         self.turn = PLAYER1
+        self.bad_tries = 0
 
     def get_current_turn(self):
         return self.turn
@@ -22,16 +23,17 @@ class GomokuGame:
         return np.array(self.state)
 
     def print_board(self):
+        print(f"Number of bad attempts: {self.bad_tries}")
         print_state(self.state)
 
     # players are PLAYER1/PLAYER2 in order of turns
     def make_move(self, move, player):
         if move[0] > 15 or move[1] > 15:
-            # print("Please insert values between 0 and 14")
+            print("Please insert values between 0 and 14")
             return np.array(self.state), -255, True
         elif not is_position_available(self.state, move):
-            # print("Position is busy")
-            return np.array(self.state), -255, True
+            self.bad_tries +=1
+            return np.array(self.state), -10, False
         else:
             make_move(self.state, move, player)
             self.moves.append(move)
@@ -45,6 +47,7 @@ class GomokuGame:
             else:
                 print(f"The winner is: {self.turn}")
                 self.print_board()
+                self.bad_tries = 0
                 return state_array, 255, True
 
 

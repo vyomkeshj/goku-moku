@@ -45,11 +45,12 @@ class GomokuEnv(gym.Env):
         # print(f"reset board after {self.action_count} steps")
 
         self.action_count = 0
-        return self.game_mdp.get_board_state()[np.newaxis, ...]
+        observation = self.game_mdp.get_board_state()[np.newaxis, ...]
+        return observation
 
     def render(self, mode='human'):
-        pass
-        # self.game_mdp.print_board()
+        # pass
+        self.game_mdp.print_board()
 
 
 # Test environment
