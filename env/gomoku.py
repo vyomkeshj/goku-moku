@@ -7,7 +7,7 @@ class GomokuGame:
         self.moves = []
         self.state = init_state
         self.winner = EMPTY
-        self.turn = PLAYER1
+        self.turn = PLAYER1   #[128]
         self.bad_tries = 0
 
     def get_current_turn(self):
@@ -43,12 +43,12 @@ class GomokuGame:
             state_array = state_array.flatten()
             if self.winner is EMPTY:
                 self.turn = PLAYER2 if self.turn == PLAYER1 else PLAYER1
-                return state_array, -1.0000/255.0000, False
+                return state_array, -2.0000/255.0000, False
             else:
                 print(f"The winner is: {self.turn}")
                 self.print_board()
                 self.bad_tries = 0
-                return state_array, 0, True
+                return state_array, 5, True
 
 
 # Test game

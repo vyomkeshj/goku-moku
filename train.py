@@ -1,5 +1,5 @@
 import numpy as np
-from stable_baselines3 import A2C, DDPG
+from stable_baselines3 import SAC, DDPG
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
 from stable_baselines3.dqn import MlpPolicy
 
@@ -16,15 +16,20 @@ if __name__ == '__main__':
     param_noise = None
     action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(2), sigma=float(1.0) * np.ones(2))
 
-    model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
-    model.learn(total_timesteps=400000)
-    model.save("ddpg_mountain")
+    # model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
+    # model = DDPG("MlpPolicy", env, verbose=1)
+    model = SAC("MlpPolicy", env, verbose=1, action_noise=action_noise)
+    # model = DDPG.load("ddpg_mountain", action_noise=action_noise)
+
+    model.learn(total_timesteps=40000)
+    # model.save("ddpg_mountain_2")
 
     obs = env.reset()
-    _state = obs
     for i in range(255):
-        action, _state = model.predict(_state, deterministic=True)
-        _state, reward, done, info = env.step(action)
+        action, in_st = model.predict(obs, deterministic=False)
+        print(action)
+        obs, reward, done, info = env.step(action)
+        env.render()
         if i == 254 or done:
             env.render()
             _state = env.reset()
