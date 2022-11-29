@@ -4,7 +4,6 @@ from typing import Union
 import gym
 import numpy as np
 from gym import spaces
-
 from stable_baselines3.common.preprocessing import is_image_space_channels_first
 from stable_baselines3.common.vec_env import DummyVecEnv, VecCheckNan
 
@@ -107,7 +106,8 @@ def _check_obs(obs: Union[tuple, dict, np.ndarray, int], observation_space: spac
     if isinstance(observation_space, spaces.Discrete):
         assert isinstance(obs, int), f"The observation returned by `{method_name}()` method must be an int"
     elif _is_numpy_array_space(observation_space):
-        assert isinstance(obs, np.ndarray), f"The observation returned by `{method_name}()` method must be a numpy array"
+        assert isinstance(obs,
+                          np.ndarray), f"The observation returned by `{method_name}()` method must be a numpy array"
 
     assert observation_space.contains(
         obs
@@ -206,7 +206,8 @@ def _check_spaces(env: gym.Env) -> None:
     assert hasattr(env, "observation_space"), "You must specify an observation space (cf gym.spaces)" + gym_spaces
     assert hasattr(env, "action_space"), "You must specify an action space (cf gym.spaces)" + gym_spaces
 
-    assert isinstance(env.observation_space, spaces.Space), "The observation space must inherit from gym.spaces" + gym_spaces
+    assert isinstance(env.observation_space,
+                      spaces.Space), "The observation space must inherit from gym.spaces" + gym_spaces
     assert isinstance(env.action_space, spaces.Space), "The action space must inherit from gym.spaces" + gym_spaces
 
 
@@ -279,9 +280,9 @@ def check_env(env: gym.Env, warn: bool = True, skip_render_check: bool = True) -
 
         # Check for the action space, it may lead to hard-to-debug issues
         if isinstance(action_space, spaces.Box) and (
-            np.any(np.abs(action_space.low) != np.abs(action_space.high))
-            or np.any(action_space.low != -1)
-            or np.any(action_space.high != 1)
+                np.any(np.abs(action_space.low) != np.abs(action_space.high))
+                or np.any(action_space.low != -1)
+                or np.any(action_space.high != 1)
         ):
             warnings.warn(
                 "We recommend you to use a symmetric and normalized Box action space (range=[-1, 1]) "

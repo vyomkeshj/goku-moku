@@ -1,6 +1,6 @@
-from env.checker import *
 from gym import spaces
 
+from env.checker import *
 from env.gomoku import GomokuGame
 from env.utils import get_initial_state
 
@@ -14,13 +14,12 @@ class GomokuEnv(gym.Env):
         self.initial_state = get_initial_state()
 
         self.action_space = spaces.Box(low=np.array([-1.0000, -1.0000]),
-                                       high=np.array([1.0000, 1.0000]),
-                                       dtype=np.float32)
+                                       high=np.array([1.0000, 1.0000]), )
 
         self.observation_space = spaces.Box(
             low=np.full((225,), 0),
             high=np.full((225,), 255),
-            dtype=int
+            dtype=np.float32
         )
 
         self.game_mdp = GomokuGame(self.initial_state)
@@ -39,11 +38,11 @@ class GomokuEnv(gym.Env):
 
     def reset(self):
         self.initial_state = get_initial_state()
-
-        print("___________________RESET_________________________")
-        print(f"Reset board after {self.action_count} steps")
-        self.game_mdp.print_game_state()
-        print("____________________________________________")
+        #
+        # print("___________________RESET_________________________")
+        # print(f"Reset board after {self.action_count} steps")
+        # self.game_mdp.print_game_state()
+        # print("____________________________________________")
 
         self.game_mdp = GomokuGame(self.initial_state)
 
@@ -52,7 +51,11 @@ class GomokuEnv(gym.Env):
         return observation
 
     def render(self, mode='human'):
-        pass
+        print("___________________RESET_________________________")
+        print(f"Rendering board after {self.action_count} steps")
+        print(f"winner = {self.game_mdp.get_winner()}")
+        self.game_mdp.print_game_state()
+        print("_________________________________________________")
         # self.game_mdp.print_board()
 
 

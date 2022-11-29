@@ -1,7 +1,7 @@
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
+import gym
 import torch as th
 import torch.nn as nn
-import gym
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
 class CustomCNN(BaseFeaturesExtractor):

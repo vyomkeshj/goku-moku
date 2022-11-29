@@ -1,8 +1,8 @@
 # Implementation of Twin Delayed Deep Deterministic Policy Gradients (TD3)
 # Paper: https://arxiv.org/abs/1802.09477
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
 
 
 class Actor(nn.Module):

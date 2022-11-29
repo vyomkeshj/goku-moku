@@ -42,11 +42,12 @@ class GomokuGame:
     # players are PLAYER1/PLAYER2 in order of turns
     def make_move(self, move, player):
         if move[0] > 15 or move[1] > 15:
+            # does not happen irl
             print("Please insert values between 0 and 14")
             return np.array(self.state).flatten(), -255, True
         elif not is_position_available(self.state, move):
             self.bad_tries += 1
-            return np.array(self.state).flatten(), -10 / 255, False
+            return np.array(self.state).flatten(), -100.00 / 255.00, False
         else:
             make_move(self.state, move, player)
             self.moves.append(move)
@@ -58,8 +59,11 @@ class GomokuGame:
                 self.turn = PLAYER2 if self.turn == PLAYER1 else PLAYER1
                 return state_array, -2.0000 / 255.0000, False
             else:
+                print("__________________WIN______________________")
                 print(f"The winner is: {self.turn}")
                 self.print_game_state()
+                print("__________________---______________________")
+
                 self.bad_tries = 0
                 return state_array, 5, True
 
