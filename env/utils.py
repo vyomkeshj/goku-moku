@@ -155,17 +155,6 @@ def exists_winner(state, moves):
 
 # prints a state of the board
 def print_state(state):
-    # s = " "
-    # for j in range(15):
-    #     s += "  " + str(j).zfill(2)
-    # print(s)
-    # i = 0;
-    # for row in state:
-    #     string = ""
-    #     for column in row:
-    #         string += column + " "
-    #     print(str(i).zfill(2) + " " + string)
-    #     i += 1
     print(np.array(state))
 
 

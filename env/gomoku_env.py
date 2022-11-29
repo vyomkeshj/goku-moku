@@ -42,7 +42,7 @@ class GomokuEnv(gym.Env):
 
         print("___________________RESET_________________________")
         print(f"Reset board after {self.action_count} steps")
-        self.game_mdp.print_board()
+        self.game_mdp.print_game_state()
         print("____________________________________________")
 
         self.game_mdp = GomokuGame(self.initial_state)
