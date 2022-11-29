@@ -59,10 +59,10 @@ class GomokuGame:
                 self.turn = PLAYER2 if self.turn == PLAYER1 else PLAYER1
                 return state_array, -2.0000 / 255.0000, False
             else:
-                print("__________________WIN______________________")
+                # print("__________________WIN______________________")
                 print(f"The winner is: {self.turn}")
-                self.print_game_state()
-                print("__________________---______________________")
+                # self.print_game_state()
+                # print("__________________---______________________")
 
                 self.bad_tries = 0
                 return state_array, 5, True

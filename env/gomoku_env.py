@@ -51,7 +51,7 @@ class GomokuEnv(gym.Env):
         return observation
 
     def render(self, mode='human'):
-        print("___________________RESET_________________________")
+        print("___________________GAME_RENDER_________________________")
         print(f"Rendering board after {self.action_count} steps")
         print(f"winner = {self.game_mdp.get_winner()}")
         self.game_mdp.print_game_state()
