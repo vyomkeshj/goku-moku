@@ -37,11 +37,12 @@ class GomokuGame:
         np.set_printoptions(formatter={'float': '{: 3.0f}'.format})
         print(visual_state)
 
-    # players are PLAYER/OPPONENT,
+    # players are PLAYER/OPPONENT, fixme: alternate calls will print -ve even if they belong to opponent
     def make_move(self, move, player):
         if move[0] > BOARD_SIZE or move[1] > BOARD_SIZE:
             # does not happen irl
             print("Please insert values between 0 and 14")
+            print(move)
             return np.array(self.state).flatten(), -BOARD_SIZE*BOARD_SIZE, True
         elif not is_position_available(self.state, move):
             self.bad_tries += 1
@@ -60,9 +61,13 @@ class GomokuGame:
                 return state_array, -2.0000 / BOARD_SIZE*BOARD_SIZE, \
                        (self.get_current_move_count() == (BOARD_SIZE * BOARD_SIZE))
             else:
-                # print("__________________WIN______________________")
-                print(f"The winner is: {self.turn}")
-                print(f"The step count is: {self.get_current_move_count()}")
+                if self.get_winner() == PLAYER:
+                    print("__________________WIN______________________")
+                    winner = "PLAYER" if self.get_winner() == PLAYER else "MINIMAX"
+                    print(f"The winner is: {winner}")
+                    print(f"The step count is: {self.get_current_move_count()}")
+                    self.print_game_state()
+
                 self.bad_tries = 0
                 return state_array, 5, True
         # todo: draw situation?
@@ -72,17 +77,23 @@ class GomokuGame:
 if __name__ == '__main__':
     initial_state = get_initial_state()
     game = GomokuGame(initial_state)
-    game.make_move([7, 7], OPPONENT)
-    game.make_move([1, 8], PLAYER)
-    game.make_move([7, 8], OPPONENT)
-    print(f"winner = {game.get_winner()}")
+    game.make_move([2, 2], OPPONENT)
+    game.make_move([1, 1], PLAYER)
+    game.make_move([3, 3], OPPONENT)
+    game.make_move([2, 1], PLAYER)
+    game.make_move([4, 4], OPPONENT)
 
-    game.make_move([7, 9], OPPONENT)
-    game.make_move([2, 8], PLAYER)
-    game.make_move([7, 10], OPPONENT)
-    game.make_move([2, 9], PLAYER)
-    game.make_move([7, 11], OPPONENT)
-    print(game.make_move([1, 9], PLAYER))
+    game.print_game_state()
+    # game.make_move([1, 8], PLAYER)
+    # game.make_move([7, 8], OPPONENT)
+    # print(f"winner = {game.get_winner()}")
+    #
+    # game.make_move([7, 9], OPPONENT)
+    # game.make_move([2, 8], PLAYER)
+    # game.make_move([7, 10], OPPONENT)
+    # game.make_move([2, 9], PLAYER)
+    # game.make_move([7, 11], OPPONENT)
+    # print(game.make_move([1, 9], PLAYER))
 
     print(f"winner = {game.get_winner()}")
 

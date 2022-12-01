@@ -3,6 +3,7 @@ from stable_baselines3 import SAC, A2C
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
 
 from env.gomoku_env import GomokuEnv
+from env.utils import BOARD_SIZE
 
 # from policy.custom_cnn import custom_cnn_args
 # from wandb.integration.sb3 import WandbCallback
@@ -18,17 +19,15 @@ if __name__ == '__main__':
     # model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
     model = A2C("MlpPolicy", env, verbose=1)
     # model = DDPG.load("ddpg_mountain", action_noise=action_noise)
-    env.set_opponent(model)
 
-    model.learn(total_timesteps=10000)
-    model.save("discrete-life")
+    model.learn(total_timesteps=8000)
+    model.save("discrete-life-015")
 
     obs = env.reset()
     print("________________TEST_GAME________________")
-    for i in range(255):
+    for i in range(BOARD_SIZE*BOARD_SIZE):
         action, in_st = model.predict(obs.astype(np.float32), deterministic=False)
         obs, reward, done, info = env.step(action)
-        if i == 254 or done:
+        if done:
             env.render()
             break
-            # _state = env.reset()

@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 
-BOARD_SIZE = 3
+BOARD_SIZE = 5
 PATTERN_SIZE = 3
 
 EMPTY = 0
@@ -155,15 +155,15 @@ def input_position(turn, state):
             row = int(input("row: "))
             col = int(input("col: "))
             if row > BOARD_SIZE or col > BOARD_SIZE:
-                print("Please insert values between 0 and 14")
+                print("Please insert values on board")
             elif not is_position_available(state, [row, col]):
                 print("Position is busy")
             else:
                 return [row, col]
         except IndexError:
-            print("Please insert values between 0 and 14")
+            print("Please insert values on board")
         except ValueError:
-            print("Please insert values between 0 and 14")
+            print("Please insert values on board")
     return []
 
 
