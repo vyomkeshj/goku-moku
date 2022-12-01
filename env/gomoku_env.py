@@ -15,6 +15,7 @@ class GomokuEnv(gym.Env):
 
         # Who gets to play first
         self.turn = PLAYER if uniform(0, 1) > 0.5 else OPPONENT
+        print(f"first mover is: {self.turn}")
 
         self.initial_state = get_initial_state()
 
@@ -22,7 +23,7 @@ class GomokuEnv(gym.Env):
 
         self.observation_space = spaces.Box(0, 2, (self._max_episode_steps, ), dtype=np.int64)
 
-        self.game_mdp = GomokuGame(self.initial_state)
+        self.game_mdp = GomokuGame(self.initial_state, self.turn)
 
     def step(self, action_step):
         row_index = int(action_step / self.grid_size)
@@ -38,21 +39,24 @@ class GomokuEnv(gym.Env):
                 return observation_p, reward_p, True, {}
 
             # Minimax player moves
-            action_step_opponent = get_minimax_player_mv(self.game_mdp.state, self.game_mdp.round_number, self.game_mdp.moves)
+            action_step_opponent = get_minimax_player_mv(self.game_mdp.state, len(self.game_mdp.moves), self.game_mdp.moves)
 
             # action_step_opponent, _ = self.opponent.predict(observation_p, deterministic=False)
             observation_final, reward_p, done = self.game_mdp.make_move(action_step_opponent, OPPONENT)
         else:
             # Opponent's move first, with an empty board
             # action_step_opponent, _ = self.opponent.predict(np.zeros(BOARD_SIZE*BOARD_SIZE), deterministic=False)
-            observation_final, _, done_o = self.game_mdp.make_move([randint(0, self.grid_size-1), randint(0, self.grid_size-1)], OPPONENT)
+            observation_final, _, done_o = self.game_mdp.make_move([randint(0, int(self.grid_size/2)), randint(0, int(self.grid_size/2))], OPPONENT)
             observation_final, reward_p, done = self.game_mdp.make_move(action_step_player, PLAYER)
 
         return observation_final, reward_p, done, {}
 
     def reset(self):
         self.initial_state = get_initial_state()
-        self.game_mdp = GomokuGame(self.initial_state)
+        self.turn = PLAYER if uniform(0, 1) > 0.5 else OPPONENT
+        print(f"reset: first mover is: {self.turn}")
+
+        self.game_mdp = GomokuGame(self.initial_state, self.turn)
 
         # return empty board observation
         return np.zeros((BOARD_SIZE * BOARD_SIZE,), dtype=np.int8)

@@ -2,10 +2,10 @@ from env.utils import *
 
 
 class GomokuGame:
-    def __init__(self, init_state):
-        self.round_number = 1
+    def __init__(self, init_state, turn):
         self.moves = []
         self.state = init_state
+        self.turn = turn
 
         self.winner = EMPTY
         # pick first player with 50% prob
@@ -46,11 +46,10 @@ class GomokuGame:
             return np.array(self.state).flatten(), -BOARD_SIZE*BOARD_SIZE, True
         elif not is_position_available(self.state, move):
             self.bad_tries += 1
-            return np.array(self.state).flatten(), -100.00 / BOARD_SIZE*BOARD_SIZE, False
+            return np.array(self.state).flatten(), -100.00 / BOARD_SIZE*BOARD_SIZE, True
         else:
             make_move(self.state, move, player)
             self.moves.append(move)
-            self.round_number += 1
             self.winner = exists_winner(self.state, self.moves)
 
             state_array = np.array(self.state)
@@ -67,6 +66,7 @@ class GomokuGame:
                     print(f"The winner is: {winner}")
                     print(f"The step count is: {self.get_current_move_count()}")
                     self.print_game_state()
+                    self.winner = EMPTY
 
                 self.bad_tries = 0
                 return state_array, 5, True

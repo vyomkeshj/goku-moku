@@ -13,14 +13,12 @@ from env.utils import BOARD_SIZE
 if __name__ == '__main__':
     # wandb.init()
     env = GomokuEnv()
-    param_noise = None
-    action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(2), sigma=float(0.05) * np.ones(2))
 
     # model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
     model = A2C("MlpPolicy", env, verbose=1)
     # model = DDPG.load("ddpg_mountain", action_noise=action_noise)
 
-    model.learn(total_timesteps=8000)
+    model.learn(total_timesteps=18000)
     model.save("discrete-life-015")
 
     obs = env.reset()

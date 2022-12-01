@@ -2,8 +2,8 @@ import sys
 
 import numpy as np
 
-BOARD_SIZE = 5
-PATTERN_SIZE = 3
+BOARD_SIZE = 15
+PATTERN_SIZE = 5
 
 EMPTY = 0
 PLAYER = 1
@@ -32,8 +32,7 @@ def get_positions_bounded(state, moves):
             for j in range(5):
                 new_bound_x = move_x + (i - 2)
                 new_bound_y = move_y + (j - 2)
-                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < BOARD_SIZE) and (
-                        new_bound_y < BOARD_SIZE):
+                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < BOARD_SIZE) and (new_bound_y < BOARD_SIZE):
                     if ([new_bound_x, new_bound_y] not in positions) and (state[new_bound_x][new_bound_y] == EMPTY):
                         positions.append([new_bound_x, new_bound_y])
     return positions
@@ -188,13 +187,11 @@ def get_heuristic(state, player, round_number, moves):
         if len(sequence) > 0:
             for i in range(2, 5):
                 if sequence[2] == i:
-                    score = score + get_sequence_score(i) * sequence[1] if sequence[
-                                                                               0] == OPPONENT else score - get_sequence_score(
-                        i) * sequence[1]
+                    score = score + get_sequence_score(i) * sequence[1] if sequence[0] == OPPONENT else score - get_sequence_score(i) * sequence[1]
                     break
             if sequence[2] >= 5:
                 score = score + get_sequence_score(5) if sequence[0] == OPPONENT else score - get_sequence_score(5)
-    return (score * 225) / round_number
+    return (score * BOARD_SIZE*BOARD_SIZE) / round_number
 
 
 def alpha_beta(player, state, alpha, beta, rounds, round_number, moves):
