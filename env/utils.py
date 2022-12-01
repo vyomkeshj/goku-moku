@@ -1,15 +1,13 @@
-import numpy as np
+import sys
 
-# EMPTY = "[ ]"
-# PLAYER1 = "[O]"
-# PLAYER2 = "[X]"
+import numpy as np
 
 BOARD_SIZE = 3
 PATTERN_SIZE = 3
 
 EMPTY = 0
-PLAYER1 = 1
-PLAYER2 = 2
+PLAYER = 1
+OPPONENT = 2
 
 
 # returns the initial state of the game, with all the board empty
@@ -34,7 +32,8 @@ def get_positions_bounded(state, moves):
             for j in range(5):
                 new_bound_x = move_x + (i - 2)
                 new_bound_y = move_y + (j - 2)
-                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < BOARD_SIZE) and (new_bound_y < BOARD_SIZE):
+                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < BOARD_SIZE) and (
+                        new_bound_y < BOARD_SIZE):
                     if ([new_bound_x, new_bound_y] not in positions) and (state[new_bound_x][new_bound_y] == EMPTY):
                         positions.append([new_bound_x, new_bound_y])
     return positions
@@ -123,7 +122,7 @@ def get_all_sequences(state, moves):
     return all_sequences
 
 
-# user = PLAYER1 or PLAYER2
+# user = PLAYER or OPPONENT
 def make_move(state, pos, user):
     if is_position_available(state, pos):
         state[pos[0]][pos[1]] = user
@@ -166,3 +165,68 @@ def input_position(turn, state):
         except ValueError:
             print("Please insert values between 0 and 14")
     return []
+
+
+# computer player
+
+# returns score given the length of a sequence
+def get_sequence_score(length):
+    if length == 2:
+        return 1
+    elif length == 3:
+        return 812
+    elif length == 4:
+        return 591136
+    elif length == 5:
+        return 383056128
+
+
+def get_heuristic(state, player, round_number, moves):
+    all_sequences = get_all_sequences(state, moves)
+    score = 0
+    for sequence in all_sequences:
+        if len(sequence) > 0:
+            for i in range(2, 5):
+                if sequence[2] == i:
+                    score = score + get_sequence_score(i) * sequence[1] if sequence[
+                                                                               0] == OPPONENT else score - get_sequence_score(
+                        i) * sequence[1]
+                    break
+            if sequence[2] >= 5:
+                score = score + get_sequence_score(5) if sequence[0] == OPPONENT else score - get_sequence_score(5)
+    return (score * 225) / round_number
+
+
+def alpha_beta(player, state, alpha, beta, rounds, round_number, moves):
+    possible_moves = get_positions_bounded(state, moves)
+    best_move = [-1, -1]
+
+    if len(possible_moves) == 0:
+        score = get_heuristic(state, player, round_number + rounds, moves)
+        return [score, best_move]
+    else:
+        for move in possible_moves:
+            make_move(state, move, player)
+            moves.append(move)
+            score = \
+                alpha_beta(OPPONENT if player == PLAYER else PLAYER, state, alpha, beta, rounds + 1, round_number,
+                           moves)[
+                    0]
+            unmake_move(state, move)
+            moves.remove(move)
+            if player == OPPONENT:
+                if score > alpha:
+                    alpha = score
+                    best_move = move
+            else:
+                if score < beta:
+                    beta = score
+                    best_move = move
+            if alpha >= beta:
+                return [alpha if player == OPPONENT else beta, best_move]
+        return [alpha if player == OPPONENT else beta, best_move]
+
+
+# returns best move using minimax algorithm
+def get_minimax_player_mv(state, round_number, moves):
+    return alpha_beta(OPPONENT, state, (-sys.maxsize - 1), sys.maxsize, 0, round_number, moves)[1]

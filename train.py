@@ -18,6 +18,7 @@ if __name__ == '__main__':
     # model = DDPG("MlpPolicy", env, verbose=1, action_noise=action_noise)
     model = A2C("MlpPolicy", env, verbose=1)
     # model = DDPG.load("ddpg_mountain", action_noise=action_noise)
+    env.set_opponent(model)
 
     model.learn(total_timesteps=10000)
     model.save("discrete-life")
