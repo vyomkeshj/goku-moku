@@ -8,18 +8,17 @@ from env.gomoku_env import GomokuEnv
 # from wandb.integration.sb3 import WandbCallback
 # import wandb
 
-# Train model and test it
+# Test the model, todo: produce stats
 if __name__ == '__main__':
     # wandb.init()
     env = GomokuEnv()
     param_noise = None
-    model = SAC.load("sac-one")
+    model = SAC.load("sac-one-mill")
 
     obs = env.reset()
     print("________________TEST_GAME________________")
     for i in range(255):
         action, in_st = model.predict(obs.astype(np.float32), deterministic=False)
-        # print(f"action: {action}")
         obs, reward, done, info = env.step(action)
         if i == 254 or done:
             env.render()

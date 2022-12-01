@@ -1,19 +1,22 @@
 import numpy as np
 
-EMPTY = "[ ]"
-PLAYER1 = "[O]"
-PLAYER2 = "[X]"
+# EMPTY = "[ ]"
+# PLAYER1 = "[O]"
+# PLAYER2 = "[X]"
+
+BOARD_SIZE = 3
+PATTERN_SIZE = 3
 
 EMPTY = 0
-PLAYER1 = 128
-PLAYER2 = 255
+PLAYER1 = 1
+PLAYER2 = 2
 
 
 # returns the initial state of the game, with all the board empty
 def get_initial_state():
     state = []
-    for i in range(15):
-        state.append([EMPTY for j in range(15)])
+    for i in range(BOARD_SIZE):
+        state.append([EMPTY for j in range(BOARD_SIZE)])
     return state
 
 
@@ -31,7 +34,7 @@ def get_positions_bounded(state, moves):
             for j in range(5):
                 new_bound_x = move_x + (i - 2)
                 new_bound_y = move_y + (j - 2)
-                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < 15) and (new_bound_y < 15):
+                if (new_bound_x >= 0) and (new_bound_y >= 0) and (new_bound_x < BOARD_SIZE) and (new_bound_y < BOARD_SIZE):
                     if ([new_bound_x, new_bound_y] not in positions) and (state[new_bound_x][new_bound_y] == EMPTY):
                         positions.append([new_bound_x, new_bound_y])
     return positions
@@ -58,10 +61,10 @@ def get_sequences_from_positions(state, moves):
             if len(sequence) > 0:
                 sequences.extend(sequence)
 
-        if move[0] + 15 not in visited:
+        if move[0] + BOARD_SIZE not in visited:
             horizontal = get_horizontal_from_position(state, move)
             sequence = get_sequences_in_array(horizontal)
-            visited.append(move[0] + 15)
+            visited.append(move[0] + BOARD_SIZE)
             if len(sequence) > 0:
                 sequences.extend(sequence)
 
@@ -103,7 +106,7 @@ def get_sequences_in_array(array):
 # returns an array of sequences
 def get_diagonal_sequences(state):
     sequences = []
-    x, y = 15, 15
+    x, y = BOARD_SIZE, BOARD_SIZE
     a = np.array(state)
     diags = [a[::-1, :].diagonal(i) for i in range(-a.shape[0] + 1, a.shape[1])]
     diags.extend(a.diagonal(i) for i in range(a.shape[1] - 1, -a.shape[0], -1))
@@ -111,18 +114,6 @@ def get_diagonal_sequences(state):
     for diagonal in diagonals:
         sequences += get_sequences_in_array(diagonal)
     return sequences
-
-
-# returns score given the length of a sequence
-def get_sequence_score(length):
-    if length == 2:
-        return 1
-    elif length == 3:
-        return 812
-    elif length == 4:
-        return 591136
-    elif length == 5:
-        return 383056128
 
 
 def get_all_sequences(state, moves):
@@ -148,7 +139,7 @@ def exists_winner(state, moves):
     all_sequences = get_all_sequences(state, moves)
     for sequence in all_sequences:
         if len(sequence) > 0:
-            if sequence[2] == 5:
+            if sequence[2] == PATTERN_SIZE:
                 return sequence[0]
     return EMPTY
 
@@ -164,7 +155,7 @@ def input_position(turn, state):
             print("Player " + turn + "'s turn:")
             row = int(input("row: "))
             col = int(input("col: "))
-            if (row > 15 or col > 15):
+            if row > BOARD_SIZE or col > BOARD_SIZE:
                 print("Please insert values between 0 and 14")
             elif not is_position_available(state, [row, col]):
                 print("Position is busy")

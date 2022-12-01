@@ -1,62 +1,51 @@
-from gym import spaces
-
 from env.checker import *
 from env.gomoku import GomokuGame
-from env.utils import get_initial_state
+from env.utils import get_initial_state, BOARD_SIZE
 
 
 class GomokuEnv(gym.Env):
 
     def __init__(self):
+        self.grid_size = BOARD_SIZE # 15x15 board
         self.action_count = 0
-        self._max_episode_steps = 255
+        self._max_episode_steps = BOARD_SIZE * BOARD_SIZE
 
         self.initial_state = get_initial_state()
 
-        self.action_space = spaces.Box(low=np.array([-1.0000, -1.0000]),
-                                       high=np.array([1.0000, 1.0000]), )
+        self.action_space = spaces.Discrete(self._max_episode_steps)
 
-        self.observation_space = spaces.Box(
-            low=np.full((225,), 0),
-            high=np.full((225,), 255),
-            dtype=np.float32
-        )
+        self.observation_space = spaces.Box(0, 2, (self._max_episode_steps, ), dtype=np.int64)
 
         self.game_mdp = GomokuGame(self.initial_state)
 
     def step(self, action_step):
-        """action is dict {player: PLAYER1/2, action: [x,y]}"""
-        action_step = [int(x * 7.0000 + 7.0000) for x in action_step]
+        row_index = int(action_step / self.grid_size)
+        col_index = action_step % self.grid_size
 
-        self.action_count += 1
+        action_step = [row_index, col_index]
         player = self.game_mdp.get_current_turn()
-        observation, reward_received, done_status = self.game_mdp.make_move(action_step, player)
+        observation, reward, done = self.game_mdp.make_move(action_step, player)
 
         if self.action_count == self._max_episode_steps:
-            done_status = True
-        return observation, reward_received, done_status, {}
+            done = True
+
+        self.action_count += 1
+        return observation, reward, done, {}
 
     def reset(self):
         self.initial_state = get_initial_state()
-        #
-        # print("___________________RESET_________________________")
-        # print(f"Reset board after {self.action_count} steps")
-        # self.game_mdp.print_game_state()
-        # print("____________________________________________")
-
         self.game_mdp = GomokuGame(self.initial_state)
-
         self.action_count = 0
-        observation = self.game_mdp.get_board_state().flatten()
-        return observation
+
+        # return empty board observation
+        return np.zeros((BOARD_SIZE * BOARD_SIZE,), dtype=np.int8)
 
     def render(self, mode='human'):
         print("___________________GAME_RENDER_________________________")
         print(f"Rendering board after {self.action_count} steps")
-        print(f"winner = {self.game_mdp.get_winner()}")
+        print(f"Winner = {self.game_mdp.get_winner()}")
         self.game_mdp.print_game_state()
         print("_________________________________________________")
-        # self.game_mdp.print_board()
 
 
 # Test environment
